@@ -18,8 +18,8 @@ env:
   DOCKER_HUB_USERNAME: evianwang
   # AWS & Elastic Bean Stalk
   AWS_REGION: ap-northeast-1
-  EB_ENVIRONMENT_NAME: Springbootreactfullstack-env
-  EB_APPLICATION_NAME: springboot-react-fullstack
+  EB_ENVIRONMENT_NAME: Ars-env
+  EB_APPLICATION_NAME: ars
   EB_DEPLOYMENT_PACKAGE: elasticbeanstalk/docker-compose.yml
 
 jobs:
