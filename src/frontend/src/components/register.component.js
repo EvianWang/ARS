@@ -6,6 +6,7 @@ import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
 import authService from "../store/auth.service";
+import history from "../context/history";
 
 const required = value => {
     if (!value) {
@@ -104,8 +105,8 @@ export default class Register extends Component {
                         message: response.data.message,
                         successful: true
                     });
-                    this.props.history.push("/login");
-                    // history.push("/profile");
+                    // this.props.history.push("/login");
+                    history.push("/login");
                     window.location.reload();
                 },
                 error => {

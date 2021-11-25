@@ -17,7 +17,6 @@ import AuthVerify from './components/auth-verify';
 import axios from 'axios';
 
 import { createBrowserHistory } from "history";
-
 const history = createBrowserHistory();
 
 
@@ -43,30 +42,6 @@ axios.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-// auth verify
-// class AuthVerify extends Component {
-//   constructor(props){
-//       super(props);
-
-//       props.history.listen(() => {
-//           const user = JSON.parse(localStorage.getItem("user"));
-
-//           if (user) {
-//               const decodeJwt = parseJwt(user.jwt);
-//               console.log('Emplified exp: ' + decodeJwt.exp * 1000);
-//               console.log('Date now: ' + Date.now());
-//               if(decodeJwt.exp * 1000 < Date.now()) {
-//                   props.logOut();
-//               }
-//           }
-//       });
-//   }
-
-//   render() {
-//       return <div></div>;
-//   }
-// }
 
 
 class App extends Component {
@@ -181,8 +156,8 @@ class App extends Component {
         <div className="container mt-3">
           <Routes>
             <Route exact path="/" element={<Login />} />
-            <Route exact path="/login" element={<Login history={history} />} />
-            <Route exact path="/register" element={<Register history={history} />} />
+            <Route exact path="/login" element={<Login />} />
+            <Route exact path="/register" element={<Register />} />
             <Route exact path="/profile" element={<Profile />} />
             <Route path="/student" element={<BoardStudent />} />
             <Route path="/teacher" element={<BoardTeacher />} />

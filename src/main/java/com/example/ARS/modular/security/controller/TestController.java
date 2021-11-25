@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/api/test")
 public class TestController {
     @GetMapping("/all")
     public String allAccess() {
@@ -16,13 +16,14 @@ public class TestController {
     }
 
     @GetMapping("/teacher")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
     public String teacherAccess() {
         return "Teacher Content.";
     }
 
     @GetMapping("/student")
-    @PreAuthorize("hasRole('STUDENT')")
+//    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
     public String studentAccess() {
         return "Student Content.";
     }

@@ -5,9 +5,7 @@ import CheckButton from "react-validation/build/button";
 
 import authService from "../store/auth.service";
 
-// import { createBrowserHistory } from "history";
-
-// const history = createBrowserHistory();
+import history from "../context/history";
 
 const required = value => {
     if (!value) {
@@ -59,8 +57,8 @@ export default class Login extends Component {
         if (this.checkBtn.context._errors.length === 0) {
             authService.login(this.state.email, this.state.password).then(
                 () => {
-                    this.props.history.push("/profile");
-                    // history.push("/profile");
+                    // this.props.history.push("/profile");
+                    history.push("/profile");
                     window.location.reload();
                 },
                 error => {

@@ -26,13 +26,13 @@ public class JwtUtils {
     public String generateJwtToken(Authentication authentication){
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        return Jwts.builder().setSubject((userPrincipal.getUsername())).setIssuedAt(new Date())
+        return Jwts.builder().setSubject((userPrincipal.getEmail())).setIssuedAt(new Date())
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtExpirationDays)))
                 .signWith(Keys.hmacShaKeyFor(jwtSecrete.getBytes()))
                 .compact();
     }
 
-    public String getNameFromJwtToken(String token){
+    public String getEmailFromJwtToken(String token){
         return Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(jwtSecrete.getBytes())).parseClaimsJws(token).getBody().getSubject();
     }
 

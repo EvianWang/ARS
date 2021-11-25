@@ -59,21 +59,22 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/","/csrf","/swagger-resources","/v2/api-docs", "/configuration/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**","/swagger-ui/**").permitAll()
+                .antMatchers("index","/static/css/*","/static/js/*","/manifest.json","/robots.txt","/favicon.ico").permitAll()
                 .antMatchers("/login","/signup").permitAll()
-                .antMatchers("/auth/**").permitAll()
-                .antMatchers("/test/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .rememberMe()
-                    .tokenValiditySeconds(3600)
-                    .key("somethingverysecured")
-                .and()
-                .logout()
-                .logoutUrl("/auth/logout")
-                .clearAuthentication(true)
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID","remember-me")
-                .logoutSuccessUrl("/login");
+                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/test/**").permitAll()
+                .anyRequest().authenticated();
+//                .and()
+//                .rememberMe()
+//                    .tokenValiditySeconds(3600)
+//                    .key("somethingverysecured")
+//                .and()
+//                .logout()
+//                .logoutUrl("/auth/logout")
+//                .clearAuthentication(true)
+//                .invalidateHttpSession(true)
+//                .deleteCookies("JSESSIONID","remember-me")
+//                .logoutSuccessUrl("/login");
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
