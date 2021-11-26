@@ -192,8 +192,8 @@ export default class Register extends Component {
 
                                 <div className="form-group">
                                     <label htmlFor="register-role">Role</label>
-                                    <Select className="register-role" name='register-role' value={this.state.role} validations={[role]} onChange={this.onChangeRole} >
-                                        <option value=''>Choose your role</option>
+                                    <Select className="register-role" name='register-role' value={this.state.role} validations={[required, role]} onChange={this.onChangeRole} >
+                                        <option value={null} disabled={true}>Choose your role</option>
                                         <option value='0'>Teacher</option>
                                         <option value='1'>Student</option>
                                     </Select>
