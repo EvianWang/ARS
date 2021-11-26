@@ -18,6 +18,16 @@ const required = value => {
     }
 };
 
+const role = value => {
+    if (value === '') {
+        return (
+            <div className="alert alert-danger" role="alert">
+                Please select your role.
+            </div>
+        );
+    }
+};
+
 const email = value => {
     if (!isEmail(value)) {
         return (
@@ -182,7 +192,7 @@ export default class Register extends Component {
 
                                 <div className="form-group">
                                     <label htmlFor="register-role">Role</label>
-                                    <Select className="register-role" name='register-role' value={this.state.role} validations={[required]} onChange={this.onChangeRole} >
+                                    <Select className="register-role" name='register-role' value={this.state.role} validations={[role]} onChange={this.onChangeRole} >
                                         <option value=''>Choose your role</option>
                                         <option value='0'>Teacher</option>
                                         <option value='1'>Student</option>
