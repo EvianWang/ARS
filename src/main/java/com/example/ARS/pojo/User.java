@@ -5,6 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,10 +43,36 @@ public class User {
     @Column(length = 20)
     private ERole role;
 
+    @ManyToMany(
+            cascade = {CascadeType.ALL}
+    )
+    @JoinTable(
+            name = "has_assignment",
+            joinColumns = @JoinColumn(
+                    name = "user_id",
+                    foreignKey = @ForeignKey(name = "has_assignment_user_id_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "assignment_id",
+                    foreignKey = @ForeignKey(name = "has_assignment_assignment_id_fk")
+            )
+    )
+    private List<Assignment> assignments = new ArrayList<>();
+
     public User(String name, String email, String password, ERole role) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public void addAssignment(Assignment assignment){
+        assignments.add(assignment);
+        assignment.getUsers().add(this);
+    }
+
+    public void removeAssignment(Assignment assignment){
+        assignments.remove(assignment);
+        assignment.getUsers().remove(this);
     }
 }

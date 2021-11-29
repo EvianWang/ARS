@@ -24,7 +24,7 @@ public class JwtResponse {
     private String email;
     @ApiModelProperty(value = "User role")
     private List<String> role;
-    private String type = "Bearer";
+    private String type = "Bearer ";
 
     public JwtResponse(String jwt, Long id, String name, String email, List<String> role){
         this.jwt = jwt;
