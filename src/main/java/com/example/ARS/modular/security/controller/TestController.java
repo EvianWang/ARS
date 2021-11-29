@@ -1,4 +1,4 @@
-package com.example.ARS.modular.system.controller;
+package com.example.ARS.modular.security.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;

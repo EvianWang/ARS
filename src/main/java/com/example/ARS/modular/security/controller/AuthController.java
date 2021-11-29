@@ -9,6 +9,7 @@ import com.example.ARS.modular.security.params.LoginParam;
 import com.example.ARS.modular.security.params.SignupParam;
 import com.example.ARS.pojo.ERole;
 import com.example.ARS.pojo.User;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@Api(value = "AuthController", tags = "User login and signup interface")
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
@@ -57,8 +59,8 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(
                 jwt,
                 userDetails.getId(),
+                userDetails.getName(),
                 userDetails.getUsername(),
-                userDetails.getEmail(),
                 roles));
     }
 
