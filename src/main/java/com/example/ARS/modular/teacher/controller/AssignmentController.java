@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Api(value = "AssignmentController", tags = "Assignment CURD interface")
@@ -83,17 +85,16 @@ public class AssignmentController {
     }
 
     @ApiOperation(value = "View all assignments for teacher")
-    @GetMapping("/assignments")
-    @PreAuthorize("hasRole('ROLE_TEAHCER')")
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
     public ResponseData viewAllAssignments(){
-        TeacherAssignmentsVo teacherAssignmentsVo = new TeacherAssignmentsVo();
-        teacherAssignmentsVo.setAllAssignmentsForTeacher(assignmentService.TeacherViewAllAssignments());
-        return ResponseData.success(teacherAssignmentsVo);
+        List<AssignmentInfoVo> allAssignments = assignmentService.TeacherViewAllAssignments();
+        return ResponseData.success(allAssignments);
     }
 
     @ApiOperation(value = "Add students to assignment")
     @PostMapping("/addstudents")
-    @PreAuthorize("hasRole('ROLE_TEAHCER')")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
     public void addStudentToAssignment(@Valid @RequestBody AddStudentsToAssignmentParam addStudentsToAssignmentParam) {
         assignmentService.TeacherAddStudents(
                 addStudentsToAssignmentParam.getStudentIds(),
