@@ -1,9 +1,13 @@
 package com.example.ARS.modular.teacher.params;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AssignmentInfoVo {
     @ApiModelProperty(value = "Assignment id")
     private Long id;

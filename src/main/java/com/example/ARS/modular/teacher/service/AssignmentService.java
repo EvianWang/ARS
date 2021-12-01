@@ -66,7 +66,7 @@ public class AssignmentService {
                     Long teacherId = a.getTeacherId();
                     // find the user with the teacher ID and check if they are equal
                     if (userRepository.findUserById(teacherId).isPresent()) {
-                        User user = userRepository.findUserById(assignmentId).get();
+                        User user = userRepository.findUserById(teacherId).get();
                         result = email.equals(user.getEmail());
                     } else {
                         throw new BadRequestException("Assignment creator does not exist in user repo");
@@ -160,6 +160,7 @@ public class AssignmentService {
             // 0:created, 1:released, 2:finished
             if(status >= 0 && status <= 2){
                 assignment.setStatus(status);
+                assignmentRepository.save(assignment);
             } else {
                 throw new BadRequestException("Invalid status change request for assignment with Id" + assignmentId + ", status: " + status);
             }
@@ -168,13 +169,23 @@ public class AssignmentService {
         }
     }
 
-    public List<Assignment> TeacherViewAllAssignments() {
-        List<Assignment> result = new ArrayList<>();
+    public List<AssignmentInfoVo> TeacherViewAllAssignments() {
+        List<AssignmentInfoVo> result = new ArrayList<>();
         // fetch teacher Id from token
         Long teacherId = getIdFromToken();
         if(teacherId != null) {
             // fetch list of assignments with teacherId
-            result = assignmentRepository.findAssignmentsByTeacherId(teacherId);
+            assignmentRepository.findAssignmentsByTeacherId(teacherId)
+                    .stream()
+                    .forEach(assignment -> {
+                            result.add (new AssignmentInfoVo(
+                                assignment.getId(),
+                                assignment.getName(),
+                                assignment.getDescription(),
+                                assignment.getDueDate(),
+                                teacherId,
+                                assignment.getStatus()));
+                    });
         } else {
             throw new BadRequestException("User in token is not found");
         }
