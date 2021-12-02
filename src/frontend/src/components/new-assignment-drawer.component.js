@@ -27,10 +27,7 @@ function NewAssignmentDrawerForm({ showDrawer, setShowDrawer, fetchAssignments }
             })
             .catch(err => {
                 console.log(err);
-                err.response.json().then(res => {
-                    console.log(res);
-                    errorNotification("There was an issue", `${res.message} [${res.status}] [${res.error}]`, "bottomLeft");
-                });
+                errorNotification("There was an issue", `${err.message}`, "bottomLeft");
             })
             .finally(() => {
                 setSubmitting(false);

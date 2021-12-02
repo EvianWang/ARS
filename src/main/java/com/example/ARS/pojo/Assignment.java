@@ -43,10 +43,11 @@ public class Assignment {
     @Column(name = "status")
     private int status;
 
-    @ManyToMany(
-            mappedBy = "assignments"
+    @OneToMany(
+            cascade = {CascadeType.ALL},
+            mappedBy = "assignment"
     )
-    private List<User> users = new ArrayList<>();
+    private List<Enrolment> enrolments = new ArrayList<>();
 
     public Assignment (String name, String description, String dueDate, Long teacherId){
         this.name = name;
@@ -54,5 +55,15 @@ public class Assignment {
         this.dueDate = dueDate;
         this.teacherId = teacherId;
         this.status = 0;
+    }
+
+    public void addEnrolment(Enrolment enrolment){
+        if(!enrolments.contains(enrolment)){
+            enrolments.add(enrolment);
+        }
+    }
+
+    public void removeEnrolment(Enrolment enrolment){
+        enrolments.remove(enrolment);
     }
 }
