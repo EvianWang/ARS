@@ -17,6 +17,7 @@ import {
 
 import NewAssignmentDrawerForm from "./new-assignment-drawer.component";
 import EditAssignmentDrawerForm from "./edit-assignment-drawer.component";
+import AddStudentsToAssignmentDrawerForm from "./add-students-to-assignment-drawer.component";
 import { successNotification, errorNotification } from "./notification.component";
 
 import userService from "../store/user.service";
@@ -31,6 +32,7 @@ export default class BoardTeacher extends Component {
             content: [],
             showDrawer: false,
             showEditDrawer: false,
+            showAddStudentsDrawer: false,
             record: null,
             isModalVisible: false,
         };
@@ -41,6 +43,14 @@ export default class BoardTeacher extends Component {
         // message.info(`Click on item ${record}`);
         // message.info(`${record}`);
     // };
+
+    handleAddStudentsAction(record) {
+        if(record != null) {
+            this.setState({ record: record});
+            console.log(this.state.record);
+            this.setShowAddStudentsDrawer();
+        }
+    }
 
     handleEditAction(record) {
         if (record != null) {
@@ -113,6 +123,10 @@ export default class BoardTeacher extends Component {
         this.setState({ showEditDrawer: !this.state.showEditDrawer });
     }
 
+    setShowAddStudentsDrawer = () => {
+        this.setState( { showAddStudentsDrawer: !this.state.showAddStudentsDrawer });
+    }
+
     fetchAllAssignments = () => {
         userService.getTeacherBoard().then(
             response => {
@@ -149,7 +163,7 @@ export default class BoardTeacher extends Component {
             // }}
             // onClick={this.onClick}
             >
-                <Menu.Item key="0">Add students</Menu.Item>
+                <Menu.Item key="0" onClick={() => this.handleAddStudentsAction(record)}>Add students</Menu.Item>
                 <Menu.Item key="1" onClick={() => this.handleStatusChange('release',record)}>Release</Menu.Item>
                 <Menu.Item key="2" onClick={() => this.handleStatusChange('close',record)}>Close</Menu.Item>
                 {/* <Menu.Item key="3">Delete</Menu.Item> */}
@@ -217,14 +231,23 @@ export default class BoardTeacher extends Component {
                     </Tooltip>
 
                 </div>
+
+                {this.state.record ? <AddStudentsToAssignmentDrawerForm
+                    assignment={this.state.record}
+                    showAddStudentsDrawer={this.state.showAddStudentsDrawer}
+                    setShowAddStudentsDrawer={this.setShowAddStudentsDrawer}
+                /> : <></>}
+
                 {this.state.record ? <Modal title="Delete Assignment" visible={this.state.isModalVisible} onOk={this.handleOk} onCancel={this.handleCancel}>
                     <p>Are you sure deleting {this.state.record.name} ?</p>
                 </Modal> : <></>}
+
                 <NewAssignmentDrawerForm
                     showDrawer={this.state.showDrawer}
                     setShowDrawer={this.setShowDrawer}
                     fetchAssignments={this.fetchAllAssignments}
                 />
+
                 {this.state.record ? <EditAssignmentDrawerForm
                     assignment={this.state.record}
                     showEditDrawer={this.state.showEditDrawer}

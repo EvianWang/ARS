@@ -192,7 +192,7 @@ public class AssignmentService {
         return result;
     }
 
-    public void TeacherAddStudents(List<Long> studentIds, Long assignmentId) {
+    public void TeacherAddStudent(Long studentId, Long assignmentId) {
         // find the assignment
         Assignment assignment;
         if(assignmentRepository.findAssignmentById(assignmentId).isPresent()){
@@ -202,15 +202,32 @@ public class AssignmentService {
         }
 
         // find the students and add the assignment to them
-        studentIds.stream()
-                .forEach(studentId -> {
-                    if(userRepository.findUserById(studentId).isPresent()) {
-                        User student = userRepository.findUserById(studentId).get();
-                        student.addAssignment(assignment);
-                    } else {
-                        throw new BadRequestException("Student with id " + studentId + " is not found");
-                    }
-                });
+        if(userRepository.findUserById(studentId).isPresent()) {
+            User student = userRepository.findUserById(studentId).get();
+            student.addAssignment(assignment);
+            userRepository.save(student);
+        } else {
+            throw new BadRequestException("Student with id " + studentId + " is not found");
+        }
+    }
+
+    public void TeacherDeleteStudent(Long studentId, Long assignmentId) {
+        // find the assignment
+        Assignment assignment;
+        if(assignmentRepository.findAssignmentById(assignmentId).isPresent()){
+            assignment = assignmentRepository.findAssignmentById(assignmentId).get();
+        } else {
+            throw new BadRequestException("Assignment with id " + assignmentId + " is not found");
+        }
+
+        // find the students and add the assignment to them
+        if(userRepository.findUserById(studentId).isPresent()) {
+            User student = userRepository.findUserById(studentId).get();
+            student.removeAssignment(assignment);
+            userRepository.save(student);
+        } else {
+            throw new BadRequestException("Student with id " + studentId + " is not found");
+        }
     }
 }
 
