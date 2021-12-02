@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   backend:
-    image: "evianwang/ars:1.12.2021.6.48.33"
+    image: "evianwang/ars:2.12.2021.11.37.27"
     ports:
       - "80:8080"
     restart: "always"
