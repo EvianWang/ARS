@@ -2,6 +2,7 @@ package com.example.ARS.modular.teacher.controller;
 
 import com.example.ARS.core.ResponseData;
 import com.example.ARS.modular.security.dao.UserRepository;
+import com.example.ARS.modular.security.service.UserService;
 import com.example.ARS.modular.teacher.params.*;
 import com.example.ARS.modular.teacher.service.AssignmentService;
 import com.example.ARS.pojo.Assignment;
@@ -23,6 +24,7 @@ import java.util.List;
 public class AssignmentController {
 
     private final AssignmentService assignmentService;
+    private final UserService userService;
 
     @ApiOperation(value = "Create assignment")
     @PostMapping("/create")
@@ -92,14 +94,50 @@ public class AssignmentController {
         return ResponseData.success(allAssignments);
     }
 
-    @ApiOperation(value = "Add students to assignment")
-    @PostMapping("/addstudents")
+    @ApiOperation(value = "Add student to assignment")
+    @PostMapping("/addstudent")
     @PreAuthorize("hasRole('ROLE_TEACHER')")
-    public void addStudentToAssignment(@Valid @RequestBody AddStudentsToAssignmentParam addStudentsToAssignmentParam) {
-        assignmentService.TeacherAddStudents(
-                addStudentsToAssignmentParam.getStudentIds(),
-                addStudentsToAssignmentParam.getAssignmentId()
+    public void addStudentToAssignment(@Valid @RequestBody AddStudentToAssignmentParam addStudentToAssignmentParam) {
+        assignmentService.TeacherAddStudent(
+                addStudentToAssignmentParam.getStudentId(),
+                addStudentToAssignmentParam.getAssignmentId()
         );
+    }
+
+    @ApiOperation(value = "Delete student to assignment")
+    @PostMapping("/deletestudent")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public void deleteStudentFromAssignment(@Valid @RequestBody AddStudentToAssignmentParam addStudentToAssignmentParam) {
+        assignmentService.TeacherDeleteStudent(
+                addStudentToAssignmentParam.getStudentId(),
+                addStudentToAssignmentParam.getAssignmentId()
+        );
+    }
+
+    @ApiOperation(value = "Find students have the assignment")
+    @GetMapping("/studentsinassignment/{assignmentId}")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public ResponseData viewStudentsInAssignment(@PathVariable ("assignmentId") Long assignmentId) {
+        List<StudentInfoVo> students = userService.findAllStudentsInAssignment(assignmentId);
+        return ResponseData.success(students);
+    }
+
+    @ApiOperation(value = "Find students do not have the assignment")
+    @GetMapping("/studentsnotinassignment/{assignmentId}")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public ResponseData viewStudentsNotInAssignment(@PathVariable ("assignmentId") Long assignmentId) {
+        List<StudentInfoVo> students = userService.findAllStudentsNotInAssignment(assignmentId);
+        return ResponseData.success(students);
+    }
+
+    @ApiOperation(value = "Search students do not have the assignment")
+    @PostMapping("/search/studentsnotinassignment")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public ResponseData searchStudentsNotInAssignment(@Valid @RequestBody SearchStudentsNotInAssParam searchStudentsNotInAssParam) {
+        List<StudentInfoVo> students = userService.searchStudentsNotInAssignment(
+                searchStudentsNotInAssParam.getSearchText(),
+                searchStudentsNotInAssParam.getAssignmentId());
+        return ResponseData.success(students);
     }
 
 
