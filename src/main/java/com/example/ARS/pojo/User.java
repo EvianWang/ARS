@@ -43,21 +43,11 @@ public class User {
     @Column(length = 20)
     private ERole role;
 
-    @ManyToMany(
-            cascade = {CascadeType.ALL}
+    @OneToMany(
+            cascade = {CascadeType.ALL},
+            mappedBy = "user"
     )
-    @JoinTable(
-            name = "has_assignment",
-            joinColumns = @JoinColumn(
-                    name = "user_id",
-                    foreignKey = @ForeignKey(name = "has_assignment_user_id_fk")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "assignment_id",
-                    foreignKey = @ForeignKey(name = "has_assignment_assignment_id_fk")
-            )
-    )
-    private List<Assignment> assignments = new ArrayList<>();
+    private List<Enrolment> enrolments = new ArrayList<>();
 
     public User(String name, String email, String password, ERole role) {
         this.name = name;
@@ -66,13 +56,13 @@ public class User {
         this.role = role;
     }
 
-    public void addAssignment(Assignment assignment){
-        assignments.add(assignment);
-        assignment.getUsers().add(this);
+    public void addEnrolment(Enrolment enrolment){
+        if(!enrolments.contains(enrolment)){
+            enrolments.add(enrolment);
+        }
     }
 
-    public void removeAssignment(Assignment assignment){
-        assignments.remove(assignment);
-        assignment.getUsers().remove(this);
+    public void removeEnrolment(Enrolment enrolment){
+        enrolments.remove(enrolment);
     }
 }

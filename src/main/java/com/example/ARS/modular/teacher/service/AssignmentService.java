@@ -4,8 +4,11 @@ import com.example.ARS.exception.BadRequestException;
 import com.example.ARS.modular.security.UserDetailsImpl;
 import com.example.ARS.modular.security.dao.UserRepository;
 import com.example.ARS.modular.teacher.dao.AssignmentRepository;
+import com.example.ARS.modular.teacher.dao.EnrolmentRepository;
 import com.example.ARS.modular.teacher.params.AssignmentInfoVo;
 import com.example.ARS.pojo.Assignment;
+import com.example.ARS.pojo.Enrolment;
+import com.example.ARS.pojo.EnrolmentId;
 import com.example.ARS.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,17 +31,20 @@ public class AssignmentService {
     AssignmentRepository assignmentRepository;
 
     @Autowired
+    EnrolmentRepository enrolmentRepository;
+
+    @Autowired
     public AssignmentService(AssignmentRepository assignmentRepository) {
         this.assignmentRepository = assignmentRepository;
     }
 
-    public Long getIdFromToken(){
+    public Long getIdFromToken() {
         Long result = null;
-        try{
+        try {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(principal instanceof  UserDetailsImpl) {
+            if (principal instanceof UserDetailsImpl) {
                 String email = ((UserDetailsImpl) principal).getUsername();
-                if(userRepository.findUserByEmail(email).isPresent()) {
+                if (userRepository.findUserByEmail(email).isPresent()) {
                     User u = userRepository.findUserByEmail(email).get();
                     result = u.getId();
                 } else {
@@ -47,7 +53,7 @@ public class AssignmentService {
             } else {
                 throw new BadRequestException("Illegal authentication info");
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         } finally {
             return result;
@@ -115,9 +121,7 @@ public class AssignmentService {
 
         userRepository.findUserById(assignment.getTeacherId())
                 .ifPresent(teacher -> {
-                    if (!teacher.getAssignments().contains(assignment)) {
-                        teacher.addAssignment(assignment);
-                    }
+                    teacher.addEnrolment(new Enrolment(teacher, assignment));
                 });
         assignmentRepository.save(assignment);
     }
@@ -126,7 +130,8 @@ public class AssignmentService {
         if (checkTeacherIdentity(assignmentId)) {
             Assignment assignment = assignmentRepository.findAssignmentById(assignmentId).get();
             User teacher = userRepository.findUserById(assignment.getTeacherId()).get();
-            teacher.removeAssignment(assignment);
+            Enrolment enrolment = enrolmentRepository.getById(new EnrolmentId(assignmentId, teacher.getId()));
+            teacher.removeEnrolment(enrolment);
             assignmentRepository.deleteById(assignmentId);
         } else {
             throw new BadRequestException("Illegal authentication info for deleting assignment with Id " + assignmentId);
@@ -134,7 +139,7 @@ public class AssignmentService {
     }
 
     public Assignment TeacherViewAssignment(Long assignmentId) {
-        if(checkTeacherIdentity(assignmentId)){
+        if (checkTeacherIdentity(assignmentId)) {
             Assignment assignment = assignmentRepository.findAssignmentById(assignmentId).get();
             return assignment;
         } else {
@@ -155,10 +160,10 @@ public class AssignmentService {
     }
 
     public void TeacherUpdateAssignmentStatus(Long assignmentId, Integer status) {
-        if(checkTeacherIdentity(assignmentId)){
+        if (checkTeacherIdentity(assignmentId)) {
             Assignment assignment = assignmentRepository.findAssignmentById(assignmentId).get();
             // 0:created, 1:released, 2:finished
-            if(status >= 0 && status <= 2){
+            if (status >= 0 && status <= 2) {
                 assignment.setStatus(status);
                 assignmentRepository.save(assignment);
             } else {
@@ -173,12 +178,12 @@ public class AssignmentService {
         List<AssignmentInfoVo> result = new ArrayList<>();
         // fetch teacher Id from token
         Long teacherId = getIdFromToken();
-        if(teacherId != null) {
+        if (teacherId != null) {
             // fetch list of assignments with teacherId
             assignmentRepository.findAssignmentsByTeacherId(teacherId)
                     .stream()
                     .forEach(assignment -> {
-                            result.add (new AssignmentInfoVo(
+                        result.add(new AssignmentInfoVo(
                                 assignment.getId(),
                                 assignment.getName(),
                                 assignment.getDescription(),
@@ -194,40 +199,32 @@ public class AssignmentService {
 
     public void TeacherAddStudent(Long studentId, Long assignmentId) {
         // find the assignment
-        Assignment assignment;
-        if(assignmentRepository.findAssignmentById(assignmentId).isPresent()){
-            assignment = assignmentRepository.findAssignmentById(assignmentId).get();
-        } else {
+        if (!assignmentRepository.findAssignmentById(assignmentId).isPresent()) {
             throw new BadRequestException("Assignment with id " + assignmentId + " is not found");
         }
 
         // find the students and add the assignment to them
-        if(userRepository.findUserById(studentId).isPresent()) {
-            User student = userRepository.findUserById(studentId).get();
-            student.addAssignment(assignment);
-            userRepository.save(student);
-        } else {
+        if (!userRepository.findUserById(studentId).isPresent()) {
             throw new BadRequestException("Student with id " + studentId + " is not found");
         }
+
+        User student = userRepository.findUserById(studentId).get();
+        Assignment assignment = assignmentRepository.findAssignmentById(assignmentId).get();
+        student.addEnrolment(new Enrolment(student,assignment));
+        userRepository.save(student);
     }
 
     public void TeacherDeleteStudent(Long studentId, Long assignmentId) {
         // find the assignment
-        Assignment assignment;
-        if(assignmentRepository.findAssignmentById(assignmentId).isPresent()){
-            assignment = assignmentRepository.findAssignmentById(assignmentId).get();
-        } else {
+        if (!assignmentRepository.findAssignmentById(assignmentId).isPresent()) {
             throw new BadRequestException("Assignment with id " + assignmentId + " is not found");
         }
 
         // find the students and add the assignment to them
-        if(userRepository.findUserById(studentId).isPresent()) {
-            User student = userRepository.findUserById(studentId).get();
-            student.removeAssignment(assignment);
-            userRepository.save(student);
-        } else {
+        if (!userRepository.findUserById(studentId).isPresent()) {
             throw new BadRequestException("Student with id " + studentId + " is not found");
         }
+        enrolmentRepository.deleteById(new EnrolmentId(studentId,assignmentId));
     }
 }
 
