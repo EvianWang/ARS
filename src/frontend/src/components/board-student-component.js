@@ -6,11 +6,14 @@ import {
     Button,
     Badge,
     Tag,
+    Modal,
 } from "antd";
 
 import userService from "../store/user.service";
 import eventBus from "../context/event-bus";
 import StudentViewAssignmentDrawerForm from "./drawers/student-view-assignment-drawer.component";
+import authService from "../store/auth.service";
+import { errorNotification } from "./notification.component";
 
 export default class BoardStudent extends Component {
     constructor(props) {
@@ -19,8 +22,12 @@ export default class BoardStudent extends Component {
         this.state = {
             content: [],
             errorContent: "",
+            submitting: false,
             showViewDrawer: false,
-            record: null
+            record: null,
+            isModalVisible: false,
+            grade: null,
+            comment: null
         };
     }
 
@@ -34,40 +41,67 @@ export default class BoardStudent extends Component {
             error => {
                 this.setState({
                     errorContent:
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
                         error.message || error.toString()
                 });
 
-                if(error.response && error.response.status === 401) {
+                if (error.response && error.response.status === 401) {
                     eventBus.dispatch("logout");
                 }
             }
         );
     }
 
-    setShowViewDrawer= () => {
+    setShowViewDrawer = () => {
         this.setState({ showViewDrawer: !this.state.showViewDrawer });
     }
 
     handleViewAction(record) {
-        if(record != null) {
-            this.setState({record: record});
+        if (record != null) {
+            this.setState({ record: record });
             console.log(this.state.record);
             this.setShowViewDrawer();
         }
     }
 
     handleResultAction(record) {
+        if (record.enrolment_status !== 2) {
+            return errorNotification('Not marked yet');
+        }
+        this.setState({ submitting: true });
+        const currentUser = authService.getCurrentUser();
+        const params = {
+            studentId: currentUser.id,
+            assignmentId: record.id
+        }
+        userService.studentViewGrade(params)
+            .then((res) => {
+                res = res.data.data;
+                this.setState({ isModalVisible: true, comment: res.comment, grade: res.grade });
+            })
+            .catch((err) => {
+                errorNotification('Error occurs when fetching the grade');
+            })
+            .finally(() => {
+                this.setState({ submitting: false });
+            })
+    }
 
+    handleCancel = () => {
+        this.setState({ isModalVisible: !this.state.isModalVisible });
+    }
+
+    handleOk = () => {
+        // do nothing 
     }
 
     componentDidMount() {
         this.fetchAllAssignmentsForStudent();
     }
 
-    
+
     render() {
         const columns = [
             {
@@ -78,12 +112,14 @@ export default class BoardStudent extends Component {
             {
                 title: 'Due Date',
                 dataIndex: 'dueDate',
-                key: 'dueDate'
+                key: 'dueDate',
+                width: '10%',
             },
             {
                 title: 'Status',
                 dataIndex: 'status',
                 key: 'status',
+                width: '10%',
                 render: status => {
                     switch (status) {
                         case 0:
@@ -95,44 +131,46 @@ export default class BoardStudent extends Component {
                         default:
                             return <Badge status="default" text="Undefined" />;
                     }
-                }
+                },
+                ellipsis: true,
             },
             {
                 title: 'Tags',
                 key: 'tags',
                 dataIndex: 'enrolment_status',
+                width: '10%',
                 render: enrolmentStatus => {
                     switch (enrolmentStatus) {
                         case 0:
                             return (
                                 <>
-                                <Tag color="volcano" key={enrolmentStatus}>
-                                    Unsubmitted
-                                </Tag>
+                                    <Tag color="volcano" key={enrolmentStatus}>
+                                        Unsubmitted
+                                    </Tag>
                                 </>
                             );
                         case 1:
                             return (
                                 <>
-                                <Tag color="green" key={enrolmentStatus}>
-                                    Submitted
-                                </Tag>
+                                    <Tag color="green" key={enrolmentStatus}>
+                                        Submitted
+                                    </Tag>
                                 </>
                             );
                         case 2:
                             return (
                                 <>
-                                <Tag color="green" key={enrolmentStatus}>
-                                    Marked
-                                </Tag>
+                                    <Tag color="green" key={enrolmentStatus}>
+                                        Marked
+                                    </Tag>
                                 </>
                             );
                         case 3:
                             return (
                                 <>
-                                <Tag color="volcano" key={enrolmentStatus}>
-                                    Missed
-                                </Tag>
+                                    <Tag color="volcano" key={enrolmentStatus}>
+                                        Missed
+                                    </Tag>
                                 </>
                             );
                         default:
@@ -145,9 +183,8 @@ export default class BoardStudent extends Component {
                 key: 'action',
                 render: (text, record) => (
                     <Space size='middle'>
-                        <Button type='link' value={record} onClick={() => this.handleViewAction(record)}>View</Button>
-                        <Button type='link' value={record} onClick={() => this.handleResultAction(record)}>Result</Button>
-                        
+                        <Button type='link' value={record} onClick={() => this.handleViewAction(record)} disabled={this.state.submitting}>View</Button>
+                        <Button type='link' value={record} onClick={() => this.handleResultAction(record)} disabled={this.state.submitting}>Result</Button>
                     </Space>
 
                 ),
@@ -162,6 +199,21 @@ export default class BoardStudent extends Component {
                         setShowViewDrawer={this.setShowViewDrawer}
                         fetchAllAssignmentsForStudent={this.fetchAllAssignmentsForStudent}
                     /> : <></>}
+
+                    <Modal
+                        title="Result"
+                        visible={this.state.isModalVisible}
+                        onOk={this.handleOk}
+                        onCancel={this.handleCancel}
+                        footer={[
+                            <Button key="back" onClick={this.handleCancel}>
+                                Back
+                            </Button>
+                        ]}>
+                        <p>Grade: {this.state.grade}</p>
+                        <p>Comment: </p>
+                        <p>{this.state.comment}</p>
+                    </Modal>
                     {this.state.content ?
                         <Table
                             columns={columns}

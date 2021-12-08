@@ -22,6 +22,7 @@ import { successNotification, errorNotification } from "./notification.component
 
 import userService from "../store/user.service";
 import eventBus from "../context/event-bus";
+import history from "../context/history";
 
 
 export default class BoardTeacher extends Component {
@@ -111,6 +112,18 @@ export default class BoardTeacher extends Component {
         }
     }
 
+    handleViewSubmissionsAction = (record) => {
+        // console.log(record);
+        localStorage.setItem('markAssignmentId',record.id);
+        history.push('/submissions');
+        // history.push({
+        //     pathname: '/submissions',
+        //     state: { assignmentId: record.id }
+        // });
+        // history.push(`/submissions:${record.assignmentId}`);
+        window.location.reload();
+    }
+
     setShowDrawer = () => {
         this.setState({ showDrawer: !this.state.showDrawer });
     }
@@ -158,6 +171,7 @@ export default class BoardTeacher extends Component {
                 <Menu.Item key="1" onClick={() => this.handleStatusChange('release', record)}>Release</Menu.Item>
                 <Menu.Item key="2" onClick={() => this.handleStatusChange('close', record)}>Close</Menu.Item>
                 <Menu.Item key="3" onClick={() => this.handleDeleteAction(record)}>Delete</Menu.Item>
+                {/* <Menu.Item key="4" onClick={() => this.handleViewSubmissionsAction(record)}>View submissions</Menu.Item> */}
                 {/* <Menu.Item key="4">Extend</Menu.Item> */}
             </Menu>
         );
@@ -171,12 +185,14 @@ export default class BoardTeacher extends Component {
             {
                 title: 'Due Date',
                 dataIndex: 'dueDate',
-                key: 'dueDate'
+                key: 'dueDate',
+                width: '10%',
             },
             {
                 title: 'Status',
                 dataIndex: 'status',
                 key: 'status',
+                width: '10%',
                 render: status => {
                     switch (status) {
                         case 0:
@@ -188,7 +204,8 @@ export default class BoardTeacher extends Component {
                         default:
                             return <Badge status="default" text="Undefined" />;
                     }
-                }
+                },
+                ellipsis: true,
             },
             {
                 title: 'Action',
@@ -196,6 +213,7 @@ export default class BoardTeacher extends Component {
                 render: (text, record) => (
                     <Space size='middle'>
                         <Button type='link' value={record} onClick={() => this.handleEditAction(record)}>Edit</Button>
+                        <Button type='link' value={record} onClick={() => this.handleViewSubmissionsAction(record)}>Mark</Button>
                         <Dropdown overlay={menu(record)}>
                             <a className="ant-dropdown-link" onClick={e => e.preventDefault()} href="/#">
                                 More actions<DownOutlined />
@@ -253,6 +271,8 @@ export default class BoardTeacher extends Component {
                             rowKey={(assignment) => assignment.id}
                         /> : <Empty />}
 
+                </div>
+                <div className="container mt-3">
                 </div>
 
             </div>

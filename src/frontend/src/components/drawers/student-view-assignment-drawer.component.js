@@ -13,7 +13,6 @@ function StudentViewAssignmentDrawerForm({ assignment, showViewDrawer, setShowVi
     const [fileList, setFileList] = useState([]);
     const [file,setFile] = useState(null);
     const [fileName,setFileName] = useState("");
-    const [allowSubmission, setAllowSubmission] = useState(true);
 
     const [passedAssignment, setPassedAssignment] = useState(assignment);
 
@@ -49,6 +48,10 @@ function StudentViewAssignmentDrawerForm({ assignment, showViewDrawer, setShowVi
     }
 
     const handleUpload = () => {
+        if(dateDiff < 0){
+            setFileList([]);
+            return errorNotification("Upload not allowed");
+        }
         let formData = new FormData();
 
         formData.append('file', file);
@@ -144,10 +147,7 @@ function StudentViewAssignmentDrawerForm({ assignment, showViewDrawer, setShowVi
             let fileKeyArr = passedAssignment.fileKey.split('-');
             setFileName(fileKeyArr[fileKeyArr.length-1]);
         }
-        if(dateDiff < 0) {
-            setAllowSubmission(false);
-        }
-    }, [calculateDateDiff,passedAssignment.fileKey,dateDiff,allowSubmission]);
+    }, [calculateDateDiff,passedAssignment.fileKey,dateDiff]);
 
     return <Drawer
         title="Submit passedAssignment"
@@ -195,7 +195,7 @@ function StudentViewAssignmentDrawerForm({ assignment, showViewDrawer, setShowVi
         <Button
             type="primary"
             onClick={handleUpload}
-            disabled={fileList.length === 0 || !allowSubmission}
+            disabled={fileList.length === 0}
             loading={submitting}
             style={{ marginTop: 16 }}
         >
