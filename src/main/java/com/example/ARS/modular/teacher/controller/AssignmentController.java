@@ -1,7 +1,6 @@
 package com.example.ARS.modular.teacher.controller;
 
 import com.example.ARS.core.ResponseData;
-import com.example.ARS.modular.security.dao.UserRepository;
 import com.example.ARS.modular.security.service.UserService;
 import com.example.ARS.modular.teacher.params.*;
 import com.example.ARS.modular.teacher.service.AssignmentService;
@@ -9,12 +8,10 @@ import com.example.ARS.pojo.Assignment;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -138,6 +135,26 @@ public class AssignmentController {
                 searchStudentsNotInAssParam.getSearchText(),
                 searchStudentsNotInAssParam.getAssignmentId());
         return ResponseData.success(students);
+    }
+
+    @ApiOperation(value = "View students' submissions")
+    @GetMapping("/submissions/{assignmentId}")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public ResponseData viewStudentSubmissions(@PathVariable("assignmentId") Long assignmentId){
+        List<StudentAssignmentSubmissionVo> submissions = assignmentService.TeacherGetSubmissionList(assignmentId);
+        return ResponseData.success(submissions);
+    }
+
+    @ApiOperation(value = "Mark an submission")
+    @PostMapping("/mark")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public void markSubmission(@Valid @RequestBody MarkAssignmentParam markAssignmentParam){
+        assignmentService.TeacherMarkAssignment(
+                markAssignmentParam.getStudentId(),
+                markAssignmentParam.getAssignmentId(),
+                markAssignmentParam.getGrade(),
+                markAssignmentParam.getComment()
+                );
     }
 
 

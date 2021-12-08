@@ -108,6 +108,23 @@ class UserService {
         })
     }
 
+    // view submission list
+    viewSubmissions = (assignmentId) => {
+        console.log("fetching assignment list");
+        return axios.get(`/api/teacher/assignment/submissions/${assignmentId}`);
+    }
+
+    // mark an assignment
+    markAssignment = (params) => {
+        console.log("marking an assignment");
+        return axios.post("/api/teacher/assignment/mark",{
+            studentId: params.studentId,
+            assignmentId: localStorage.getItem('markAssignmentId'),
+            comment: params.comment,
+            grade: params.grade,
+        })
+    }
+
     // --------------------------- Student ---------------------------
     // view all assignments
     getStudentBoard() {
@@ -118,6 +135,14 @@ class UserService {
     // view an assignment
     studentViewAssignment(assignmentId){
         return axios.get(`/api/student/assignment/${assignmentId}`);
+    }
+
+    // view grade of an assignment
+    studentViewGrade = (params) => {
+        return axios.post("/api/student/assignment/grade",{
+            studentId: params.studentId,
+            assignmentId: params.assignmentId
+        });
     }
 }
 

@@ -13,6 +13,8 @@ public interface EnrolmentRepository extends JpaRepository<Enrolment, EnrolmentI
 
     List<Enrolment> findEnrolmentsById_UserId(Long userId);
 
+    List<Enrolment> findEnrolmentsById_AssignmentId(Long assignmentId);
+
 
 
 }

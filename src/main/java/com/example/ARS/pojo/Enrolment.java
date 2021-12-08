@@ -44,6 +44,16 @@ public class Enrolment {
     )
     private String submissionURL;
 
+    @Column(
+            name = "grade"
+    )
+    private Double grade;
+
+    @Column(
+            name = "comment"
+    )
+    private String comment;
+
 
     public Enrolment(User user, Assignment assignment, Boolean isStudent, Integer enrolmentStatus) {
         this.user = user;
@@ -51,5 +61,7 @@ public class Enrolment {
         this.isStudent = isStudent;
         this.enrolmentStatus = enrolmentStatus;
         this.submissionURL = null;
+        this.grade = null;
+        this.comment = null;
     }
 }

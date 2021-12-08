@@ -6,6 +6,7 @@ import com.example.ARS.modular.security.dao.UserRepository;
 import com.example.ARS.modular.teacher.dao.AssignmentRepository;
 import com.example.ARS.modular.teacher.dao.EnrolmentRepository;
 import com.example.ARS.modular.teacher.params.AssignmentInfoVo;
+import com.example.ARS.modular.teacher.params.StudentAssignmentSubmissionVo;
 import com.example.ARS.pojo.Assignment;
 import com.example.ARS.pojo.Enrolment;
 import com.example.ARS.pojo.EnrolmentId;
@@ -225,6 +226,32 @@ public class AssignmentService {
             throw new BadRequestException("Student with id " + studentId + " is not found");
         }
         enrolmentRepository.deleteById(new EnrolmentId(studentId,assignmentId));
+    }
+
+    public List<StudentAssignmentSubmissionVo> TeacherGetSubmissionList(Long assignmentId){
+        List<StudentAssignmentSubmissionVo> result = new ArrayList<>();
+        List<Enrolment> enrolments = enrolmentRepository.findEnrolmentsById_AssignmentId(assignmentId);
+        enrolments.stream()
+                .forEach(enrolment -> {
+                    if(enrolment.getIsStudent()) {
+                        User student = userRepository.findUserById(enrolment.getId().getUserId()).get();
+                        result.add(new StudentAssignmentSubmissionVo(
+                                student.getId(),
+                                student.getName(),
+                                enrolment.getEnrolmentStatus(),
+                                enrolment.getSubmissionURL()));
+                    }
+                });
+        return result;
+    }
+
+    public void TeacherMarkAssignment(Long studentId, Long assignmentId, Double grade, String comment) {
+        Enrolment enrolment = enrolmentRepository.getById(new EnrolmentId(studentId,assignmentId));
+        enrolment.setGrade(grade);
+        enrolment.setComment(comment);
+        // change enrolment status
+        enrolment.setEnrolmentStatus(2);
+        enrolmentRepository.save(enrolment);
     }
 }
 

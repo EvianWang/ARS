@@ -3,6 +3,7 @@ package com.example.ARS.modular.student.service;
 import com.example.ARS.exception.BadRequestException;
 import com.example.ARS.modular.security.UserDetailsImpl;
 import com.example.ARS.modular.security.dao.UserRepository;
+import com.example.ARS.modular.student.params.GradeVo;
 import com.example.ARS.modular.teacher.dao.AssignmentRepository;
 import com.example.ARS.modular.teacher.dao.EnrolmentRepository;
 import com.example.ARS.modular.teacher.params.StudentAssignmentInfoVo;
@@ -109,4 +110,8 @@ public class StudentService {
 
     }
 
+    public GradeVo getAssignmentGrade(Long studentId, Long assignmentId) {
+        Enrolment enrolment = enrolmentRepository.getById(new EnrolmentId(studentId,assignmentId));
+        return new GradeVo(enrolment.getComment(), enrolment.getGrade());
+    }
 }

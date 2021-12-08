@@ -58,8 +58,15 @@ export default class Login extends Component {
             authService.login(this.state.email, this.state.password).then(
                 () => {
                     // this.props.history.push("/profile");
-                    history.push("/profile");
-                    window.location.reload();
+                    const user = authService.getCurrentUser();
+                    if(user.role.includes("ROLE_STUDENT")){
+                        history.push('/student');
+                        window.location.reload();
+                    }
+                    if(user.role.includes("ROLE_TEACHER")){
+                        history.push('/teacher');
+                        window.location.reload();
+                    }
                 },
                 error => {
                     const resMessage =

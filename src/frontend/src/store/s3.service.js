@@ -5,17 +5,17 @@ class S3Service {
     uploadFile(param){
         let formData = param.formData;
         let params = param.params;
-        return axios.post('/api/student/assignment/submit', formData, {params});
+        return axios.post('/api/s3/assignment/submit', formData, {params});
     }
     
     // --------------Download file--------------
     downloadFile(fileKey){
-        return axios.get(`/api/student/assignment/download/${fileKey}`);
+        return axios.get(`/api/s3/assignment/download/${fileKey}`);
     }
 
     // --------------Delete file--------------
     deleteFile(fileKey){
-        return axios.delete(`/api/student/assignment/delete/${fileKey}`);
+        return axios.delete(`/api/s3/assignment/delete/${fileKey}`);
     }
 }
 

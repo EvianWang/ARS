@@ -12,6 +12,7 @@ import Profile from './components/profile.component';
 import BoardStudent from './components/board-student-component';
 import BoardTeacher from './components/board-teacher-component';
 import Forbidden from './components/403.component';
+import Submissions from './components/submissions.component';
 
 import eventBus from './context/event-bus';
 import AuthVerify from './components/auth-verify';
@@ -184,6 +185,7 @@ class App extends Component {
             <Route path="/student" element={<BoardStudent />} />
             <Route path="/teacher" element={<BoardTeacher />} />
             <Route path="/403" element={<Forbidden/>}/>
+            <Route path="/submissions" element={<Submissions/>}/>
           </Routes>
         </div>
 
