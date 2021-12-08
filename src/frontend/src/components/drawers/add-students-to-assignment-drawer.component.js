@@ -1,8 +1,8 @@
 import { Drawer, Empty, Table, Button, Input, Space, Divider } from "antd";
 import { useEffect, useState } from "react";
 import React from "react";
-import { successNotification, errorNotification } from "./notification.component";
-import userService from "../store/user.service";
+import { successNotification, errorNotification } from "../notification.component";
+import userService from "../../store/user.service";
 
 const { Search } = Input;
 

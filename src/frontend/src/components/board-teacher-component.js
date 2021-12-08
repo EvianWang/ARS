@@ -15,9 +15,9 @@ import {
     PlusOutlined
 } from '@ant-design/icons';
 
-import NewAssignmentDrawerForm from "./new-assignment-drawer.component";
-import EditAssignmentDrawerForm from "./edit-assignment-drawer.component";
-import AddStudentsToAssignmentDrawerForm from "./add-students-to-assignment-drawer.component";
+import NewAssignmentDrawerForm from "./drawers/new-assignment-drawer.component";
+import EditAssignmentDrawerForm from "./drawers/edit-assignment-drawer.component";
+import AddStudentsToAssignmentDrawerForm from "./drawers/add-students-to-assignment-drawer.component";
 import { successNotification, errorNotification } from "./notification.component";
 
 import userService from "../store/user.service";
@@ -35,18 +35,14 @@ export default class BoardTeacher extends Component {
             showAddStudentsDrawer: false,
             record: null,
             isModalVisible: false,
+            errorContent: "",
         };
     }
 
-    // onClick = ({ key }) => {
-        // message.info(`Click on item ${key}`)
-        // message.info(`Click on item ${record}`);
-        // message.info(`${record}`);
-    // };
 
     handleAddStudentsAction(record) {
-        if(record != null) {
-            this.setState({ record: record});
+        if (record != null) {
+            this.setState({ record: record });
             console.log(this.state.record);
             this.setShowAddStudentsDrawer();
         }
@@ -64,7 +60,7 @@ export default class BoardTeacher extends Component {
         if (record != null) {
             this.setState({ record: record });
             console.log(this.state.record);
-            this.setState({isModalVisible: !this.state.isModalVisible});
+            this.setState({ isModalVisible: !this.state.isModalVisible });
         }
     }
 
@@ -86,32 +82,32 @@ export default class BoardTeacher extends Component {
     }
 
     handleCancel = () => {
-        this.setState({isModalVisible: !this.state.isModalVisible});
+        this.setState({ isModalVisible: !this.state.isModalVisible });
     }
 
     handleStatusChange = (status, record) => {
-        if(status === 'release') {
-            userService.updateAssignmentStatus(record,1)
-            .then(() => {
-                console.log(`assignment with Id ${record.id} was changed to released`);
-                successNotification("Assignment status successfully updated");
-                this.fetchAllAssignments();
-            }).catch(err => {
-                console.log(err);
-                errorNotification("There was an issue", `${err.message}`, "bottomLeft");
-            })
+        if (status === 'release') {
+            userService.updateAssignmentStatus(record, 1)
+                .then(() => {
+                    console.log(`assignment with Id ${record.id} was changed to released`);
+                    successNotification("Assignment status successfully updated");
+                    this.fetchAllAssignments();
+                }).catch(err => {
+                    console.log(err);
+                    errorNotification("There was an issue", `${err.message}`, "bottomLeft");
+                })
         }
 
-        if(status === 'close') {
-            userService.updateAssignmentStatus(record,2)
-            .then(() => {
-                console.log(`assignment with Id ${record.id} was changed to finished`);
-                successNotification("Assignment status successfully updated");
-                this.fetchAllAssignments();
-            }).catch(err => {
-                console.log(err);
-                errorNotification("There was an issue", `${err.message}`, "bottomLeft");
-            })
+        if (status === 'close') {
+            userService.updateAssignmentStatus(record, 2)
+                .then(() => {
+                    console.log(`assignment with Id ${record.id} was changed to finished`);
+                    successNotification("Assignment status successfully updated");
+                    this.fetchAllAssignments();
+                }).catch(err => {
+                    console.log(err);
+                    errorNotification("There was an issue", `${err.message}`, "bottomLeft");
+                })
         }
     }
 
@@ -124,7 +120,7 @@ export default class BoardTeacher extends Component {
     }
 
     setShowAddStudentsDrawer = () => {
-        this.setState( { showAddStudentsDrawer: !this.state.showAddStudentsDrawer });
+        this.setState({ showAddStudentsDrawer: !this.state.showAddStudentsDrawer });
     }
 
     fetchAllAssignments = () => {
@@ -135,8 +131,9 @@ export default class BoardTeacher extends Component {
                 });
             },
             error => {
+                console.log(error.response);
                 this.setState({
-                    content:
+                    errorContent:
                         (error.response &&
                             error.response.data &&
                             error.response.data.message) ||
@@ -156,17 +153,10 @@ export default class BoardTeacher extends Component {
 
     render() {
         const menu = record => (
-            <Menu
-            // onClick={() => {
-            // console.log(record);
-            // this.onClick(record);
-            // }}
-            // onClick={this.onClick}
-            >
+            <Menu>
                 <Menu.Item key="0" onClick={() => this.handleAddStudentsAction(record)}>Add students</Menu.Item>
-                <Menu.Item key="1" onClick={() => this.handleStatusChange('release',record)}>Release</Menu.Item>
-                <Menu.Item key="2" onClick={() => this.handleStatusChange('close',record)}>Close</Menu.Item>
-                {/* <Menu.Item key="3">Delete</Menu.Item> */}
+                <Menu.Item key="1" onClick={() => this.handleStatusChange('release', record)}>Release</Menu.Item>
+                <Menu.Item key="2" onClick={() => this.handleStatusChange('close', record)}>Close</Menu.Item>
                 <Menu.Item key="3" onClick={() => this.handleDeleteAction(record)}>Delete</Menu.Item>
                 {/* <Menu.Item key="4">Extend</Menu.Item> */}
             </Menu>
