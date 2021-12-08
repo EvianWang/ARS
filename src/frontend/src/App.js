@@ -11,6 +11,7 @@ import Register from './components/register.component';
 import Profile from './components/profile.component';
 import BoardStudent from './components/board-student-component';
 import BoardTeacher from './components/board-teacher-component';
+import Forbidden from './components/403.component';
 
 import eventBus from './context/event-bus';
 import AuthVerify from './components/auth-verify';
@@ -43,6 +44,26 @@ axios.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+// response interceptor
+axios.interceptors.response.use(
+  (response) => {
+    return Promise.resolve(response);
+  },
+  (error) => {
+    if(error.response){
+      switch(error.response.status) {
+        case 403:
+          history.push('/403');
+          window.location.reload();
+          return Promise.reject(error);
+        default:
+          break;
+      }
+    }
+    return Promise.reject(error);
+  }
+)
 
 
 class App extends Component {
@@ -162,6 +183,7 @@ class App extends Component {
             <Route exact path="/profile" element={<Profile />} />
             <Route path="/student" element={<BoardStudent />} />
             <Route path="/teacher" element={<BoardTeacher />} />
+            <Route path="/403" element={<Forbidden/>}/>
           </Routes>
         </div>
 

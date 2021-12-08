@@ -41,6 +41,7 @@ public class Assignment {
     private Long teacherId;
 
     @Column(name = "status")
+    // 0:created, 1:released, 2:finished
     private int status;
 
     @OneToMany(

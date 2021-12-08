@@ -1,28 +1,28 @@
 import axios from "axios";
 
 // response interceptor
-// const checkStatus = response => {
-//     if(response.code === 200) {
-//         return Promise.resolve(response);
-//     }
-//     // convert non-2xx HTTP responses into errors
-//     const error = new Error(response.statusText);
-//     error.response = response;
-//     return Promise.reject(error);
-// }
+const checkStatus = response => {
+    if(response.status === 200) {
+        return Promise.resolve(response);
+    }
+    // convert non-2xx HTTP responses into errors
+    const error = new Error(response.statusText);
+    error.response = response;
+    return Promise.reject(error);
+}
 
 class UserService {
     getPublicContent() {
         return axios.get('/api/test/all');
     }
 
+    // --------------------------- Teacher ---------------------------
+    // view all assignments
     getTeacherBoard() {
-        return axios.get('/api/teacher/assignment/all');
+        return axios.get('/api/teacher/assignment/all')
+                .then(res => checkStatus(res))
+                .catch(err => Promise.reject(err));
         // return axios.get('/api/test/teacher');
-    }
-
-    getStudentBoard() {
-        return axios.get('/api/test/student');
     }
 
     // create new assignment
@@ -106,6 +106,18 @@ class UserService {
             studentId: param.studentId,
             assignmentId: param.assignmentId
         })
+    }
+
+    // --------------------------- Student ---------------------------
+    // view all assignments
+    getStudentBoard() {
+        return axios.get('/api/student/assignment/all');
+        // return axios.get('/api/test/student');
+    }
+
+    // view an assignment
+    studentViewAssignment(assignmentId){
+        return axios.get(`/api/student/assignment/${assignmentId}`);
     }
 }
 

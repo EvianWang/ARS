@@ -1,52 +1,33 @@
 import { Drawer, Input, Col, Form, Row, Button, Spin, DatePicker } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import { successNotification, errorNotification } from "./notification.component";
-import userService from "../store/user.service";
-const moment = require('moment');
+import { successNotification, errorNotification } from "../notification.component";
+import userService from "../../store/user.service";
+import authService from '../../store/auth.service';
 
 const { TextArea } = Input;
 
-
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
-function EditAssignmentDrawerForm({ assignment, showEditDrawer, setShowEditDrawer, fetchAssignments }) {
+function NewAssignmentDrawerForm({ showDrawer, setShowDrawer, fetchAssignments }) {
+    const onClose = () => setShowDrawer(false);
     const [submitting, setSubmitting] = useState(false);
-    const [date, setDate] = useState(assignment.dueDate);
+    const [date, setDate] = useState(null);
 
-
-    // const [id] = useState(assignment.id);
-    // const [name, setName] = useState(assignment.name);
-    // const [description, setDescription] = useState(assignment.description);
-    // const [dueDate] = useState(assignment.dueDate);
-    // const [status, setStatus] = useState(record.status);
-
-    const onClose = () => setShowEditDrawer(false);
-
-    const onFinish = assignmentForm => {
-        const assignmentParam = {
-            id: assignment.id,
-            name: assignmentForm.name,
-            description: assignmentForm.description,
-            dueDate: date,
-        }
+    const onFinish = assignment => {
+        assignment = { id: authService.getCurrentUser().id, dueDate: date , name: assignment.name, description: assignment.description };
         setSubmitting(true);
-        console.log(assignmentParam);
-        // console.log(JSON.stringify(assignment, null, 2));
-
-        userService.editAssignment(assignmentParam)
+        console.log(JSON.stringify(assignment, null, 2));
+        userService.createNewAssignment(assignment)
             .then(() => {
-                console.log("assignment edited.")
+                console.log("assignement added");
                 onClose();
-                successNotification("Assignment successfully edited");
+                successNotification("Assignment successfully added", `${assignment.name} was added to the system`);
                 fetchAssignments();
             })
             .catch(err => {
                 console.log(err);
-                err.response.json().then(res => {
-                    console.log(res);
-                    errorNotification("There was an issue", `${res.message} [${res.status}] [${res.error}]`, "bottomLeft");
-                });
+                errorNotification("There was an issue", `${err.message}`, "bottomLeft");
             })
             .finally(() => {
                 setSubmitting(false);
@@ -63,19 +44,11 @@ function EditAssignmentDrawerForm({ assignment, showEditDrawer, setShowEditDrawe
         setDate(newDate);
     }
 
-    // const onChangeName = (newName) =>{
-    //     setName(newName);
-    // }
-
-    // const onChangeDescription = (newDesc) =>{
-    //     setDescription(newDesc);
-    // }
-
     return <Drawer
-        title="Edit assignment information"
+        title="Create new assignment"
         width={720}
         onClose={onClose}
-        visible={showEditDrawer}
+        visible={showDrawer}
         bodyStyle={{ paddingBottom: 80 }}
         footer={
             <div style={{ textAlign: 'right' }}>
@@ -89,26 +62,14 @@ function EditAssignmentDrawerForm({ assignment, showEditDrawer, setShowEditDrawe
             layout="vertical"
             onFinishFailed={onFinishFailed}
             onFinish={onFinish}
-            hideRequiredMark
-        >
-            <Row gutter={16}>
-                <Col span={12}>
-                    <Form.Item
-                        name="id"
-                        label="Id"
-                    >
-                        <Input defaultValue={assignment.id} disabled />
-                    </Form.Item>
-                </Col>
-            </Row>
+            hideRequiredMark>
             <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item
                         name="name"
                         label="Name"
-                        // rules={[{ required: true, message: 'Please enter assignment name' }]}
-                    >
-                        <Input defaultValue={assignment.name} />
+                        rules={[{ required: true, message: 'Please enter assignment name' }]}>
+                        <Input placeholder="Please enter assignment name" />
                     </Form.Item>
                 </Col>
             </Row>
@@ -117,7 +78,7 @@ function EditAssignmentDrawerForm({ assignment, showEditDrawer, setShowEditDrawe
                     <Form.Item
                         name="description"
                         label="Description">
-                        <TextArea defaultValue={assignment.description} />
+                        <TextArea placeholder="(optional)Please enter assignment description"/>
                     </Form.Item>
                 </Col>
             </Row>
@@ -126,7 +87,7 @@ function EditAssignmentDrawerForm({ assignment, showEditDrawer, setShowEditDrawe
                     <Form.Item
                         name="dueDate"
                         label="Due Date">
-                        <DatePicker defaultValue={moment(assignment.dueDate, "YYYY-MM-DD")} onChange={onDateChange}/>
+                        <DatePicker onChange={onDateChange}/>
                     </Form.Item>
                 </Col>
             </Row>
@@ -146,4 +107,4 @@ function EditAssignmentDrawerForm({ assignment, showEditDrawer, setShowEditDrawe
     </Drawer>
 }
 
-export default EditAssignmentDrawerForm;
+export default NewAssignmentDrawerForm;

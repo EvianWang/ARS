@@ -121,7 +121,7 @@ public class AssignmentService {
 
         userRepository.findUserById(assignment.getTeacherId())
                 .ifPresent(teacher -> {
-                    teacher.addEnrolment(new Enrolment(teacher, assignment));
+                    teacher.addEnrolment(new Enrolment(teacher, assignment, false, 1));
                 });
         assignmentRepository.save(assignment);
     }
@@ -210,7 +210,7 @@ public class AssignmentService {
 
         User student = userRepository.findUserById(studentId).get();
         Assignment assignment = assignmentRepository.findAssignmentById(assignmentId).get();
-        student.addEnrolment(new Enrolment(student,assignment));
+        student.addEnrolment(new Enrolment(student,assignment,true, 0));
         userRepository.save(student);
     }
 
