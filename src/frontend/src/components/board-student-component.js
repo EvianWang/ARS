@@ -7,13 +7,16 @@ import {
     Badge,
     Tag,
     Modal,
+    Input
 } from "antd";
+import Highlighter from 'react-highlight-words';
 
 import userService from "../store/user.service";
 import eventBus from "../context/event-bus";
 import StudentViewAssignmentDrawerForm from "./drawers/student-view-assignment-drawer.component";
 import authService from "../store/auth.service";
 import { errorNotification } from "./notification.component";
+import { SearchOutlined } from "@ant-design/icons";
 
 export default class BoardStudent extends Component {
     constructor(props) {
@@ -27,8 +30,91 @@ export default class BoardStudent extends Component {
             record: null,
             isModalVisible: false,
             grade: null,
-            comment: null
+            comment: null,
+            // for table search
+            searchText: '',
+            searchedColumn: '',
         };
+    }
+
+    getColumnSearchProps = dataIndex => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+            <div style={{ padding: 8 }}>
+                <Input
+                    ref={node => {
+                        // this.setState({ searchText: node });
+                        this.searchInput = node;
+                    }}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{ marginBottom: 8, display: 'block' }}
+                >
+                </Input>
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => this.handleSearch(selectedKeys,confirm,dataIndex)}
+                        icon={<SearchOutlined/>}
+                        size='small'
+                        style={{ width: 90 }}
+                    >
+                        Search
+                    </Button>
+                    <Button onClick={() => this.handleReset(clearFilters)} size='small' style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                    <Button
+                        type='link'
+                        size='small'
+                        onClick={() => {
+                            confirm({ closeDropdown: false });
+                            this.setState({
+                                searchText: selectedKeys[0],
+                                searchedColumn: dataIndex,
+                            });
+                        }}
+                    >
+                        Filter
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1880ff' : undefined}} />,
+        onFilter: (value,record) => 
+            record[dataIndex]
+                ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
+                : '',
+        onFilterDropdownVisibleChange: visible => {
+            if(visible){
+                setTimeout(() => this.searchInput.select(), 100);
+            }
+        },
+        render: text =>
+            this.state.searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+                    searchWords={[this.state.searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
+    handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        this.setState({
+            searchText: selectedKeys[0],
+            searchedColumn: dataIndex,
+        });
+    };
+
+    handleReset = clearFilters => {
+        clearFilters();
+        this.setState({ searchText: ''});
     }
 
     fetchAllAssignmentsForStudent = () => {
@@ -107,7 +193,8 @@ export default class BoardStudent extends Component {
             {
                 title: 'Name',
                 dataIndex: 'name',
-                key: 'name'
+                key: 'name',
+                ...this.getColumnSearchProps('name'),
             },
             {
                 title: 'Due Date',
